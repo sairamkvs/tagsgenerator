@@ -9,12 +9,20 @@
 <body>
   <div class="container">
     <h1>Hashtag Generator</h1>
+    
+    <!-- Input box for entering the topic -->
     <textarea id="prompt" placeholder="Enter your topic..."></textarea>
+    
+    <!-- Output box for displaying generated hashtags -->
+    <textarea id="output" placeholder="Generated hashtags will appear here..." readonly></textarea>
+    
+    <!-- Buttons for generating, copying, and regenerating hashtags -->
     <button id="generate">Generate Hashtags</button>
-    <div id="hashtags"></div>
     <button id="copy">Copy</button>
     <button id="regenerate">Regenerate</button>
   </div>
+
+  <!-- Link to the JavaScript file -->
   <script src="script.js"></script>
 </body>
 </html>

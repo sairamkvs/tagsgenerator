@@ -1,24 +1,42 @@
-document.getElementById('generate').addEventListener('click', async () => {
-    const prompt = document.getElementById('prompt').value;
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ prompt })
+// Import and configure dotenv to load environment variables
+import { config } from "dotenv";
+config(); // Loads environment variables from .env
+
+// Import required modules from OpenAI
+import OpenAI from "openai";
+
+// Initialize OpenAI with the API key from environment variables
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, // Ensure this matches your .env file's variable name
+});
+
+// Create a readline interface for command-line input/output
+import readline from "readline";
+const userInterface = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  prompt: "Enter your prompt: ",
+});
+
+// Display the prompt to the user
+userInterface.prompt();
+
+// Handle user input line by line
+userInterface.on("line", async (input) => {
+  try {
+    // Send a request to OpenAI's API
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: input }],
     });
-    const data = await response.json();
-    document.getElementById('hashtags').textContent = data.hashtags;
-  });
-  
-  document.getElementById('copy').addEventListener('click', () => {
-    const hashtags = document.getElementById('hashtags').textContent;
-    navigator.clipboard.writeText(hashtags);
-    alert('Hashtags copied to clipboard!');
-  });
-  
-  document.getElementById('regenerate').addEventListener('click', () => {
-    document.getElementById('prompt').value = '';
-    document.getElementById('hashtags').textContent = '';
-  });
-  
+
+    // Output the response
+    console.log(response.choices[0].message.content);
+
+    // Prompt the user for the next input
+    userInterface.prompt();
+  } catch (error) {
+    console.error("Error generating response:", error);
+    userInterface.prompt();
+  }
+});

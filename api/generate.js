@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
       {
         model: 'text-davinci-003',
         prompt: prompt,
-        max_tokens: 50,
+        max_tokens: 100,
       },
       {
         headers: {
