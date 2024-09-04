@@ -1,8 +1,8 @@
 // Import and configure dotenv to load environment variables
 import { config } from "dotenv";
-config(); // Loads environment variables from .env
+config();
 
-// Import required modules from OpenAI
+// Import the OpenAI default export
 import OpenAI from "openai";
 
 // Initialize OpenAI with the API key from environment variables
@@ -33,10 +33,10 @@ userInterface.on("line", async (input) => {
     // Output the response
     console.log(response.choices[0].message.content);
 
-    // Prompt the user for the next input
-    userInterface.prompt();
   } catch (error) {
-    console.error("Error generating response:", error);
+    console.error("Error generating response:", error.response ? error.response.data : error.message);
+  } finally {
+    // Prompt the user for the next input
     userInterface.prompt();
   }
 });
