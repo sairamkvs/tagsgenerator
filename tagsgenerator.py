@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return ('index.html')
 
 @app.route('/generate_hashtags', methods=['POST'])
 def generate_hashtags():
