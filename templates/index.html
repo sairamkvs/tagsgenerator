@@ -3,91 +3,222 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hashtag Generator</title>
+  <title>Enhanced Hashtag Generator</title>
   <style>
+    /* Google Font for a modern look */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+    :root {
+      --primary-color: #007BFF;
+      --primary-hover: #0056b3;
+      --secondary-color: #6c757d;
+      --secondary-hover: #5a6268;
+      --background-color: #f4f7f6;
+      --container-bg: #ffffff;
+      --text-color: #333;
+      --border-color: #ddd;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+    }
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Poppins', sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      background-color: #f0f0f0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ece9e6, #ffffff);
       margin: 0;
+      color: var(--text-color);
     }
 
     .container {
-      background-color: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      width: 400px;
+      background-color: var(--container-bg);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px var(--shadow-color);
+      width: 100%;
+      max-width: 450px;
+      margin: 20px;
+      position: relative; /* For spinner positioning */
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    
+    /* Visually hidden label for accessibility */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
     }
 
     textarea {
       width: 100%;
+      box-sizing: border-box; /* Ensures padding doesn't affect width */
       height: 100px;
-      margin-bottom: 10px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      margin-bottom: 15px;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
       font-size: 16px;
-      resize: none; /* Prevent resizing for a cleaner layout */
+      font-family: 'Poppins', sans-serif;
+      resize: vertical;
+      transition: border-color 0.3s, box-shadow 0.3s;
     }
 
-    button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    button:hover {
-      background-color: #0056b3;
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
     }
 
     #output {
-      margin-top: 10px; /* Adds some space between the output and the buttons */
-      background-color: #f9f9f9; /* Light background for read-only effect */
+      background-color: #f9f9f9;
+      cursor: default;
     }
+    
+    .button-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+    
+    button:active {
+        transform: translateY(0);
+    }
+    
+    button:disabled {
+        background-color: #a0c3e6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    #generate {
+        grid-column: 1 / -1; /* Make generate button span both columns */
+    }
+
+    #copy, #regenerate {
+        background-color: var(--secondary-color);
+    }
+
+    #copy:hover, #regenerate:hover {
+        background-color: var(--secondary-hover);
+    }
+    
+    /* Spinner for loading state */
+    .spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left-color: var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    .hidden {
+        display: none;
+    }
+
+    @keyframes spin {
+        to {
+            transform: translate(-50%, -50%) rotate(360deg);
+        }
+    }
+
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Hashtag Generator</h1>
     
-    <!-- Input box for entering the topic -->
+    <div id="spinner" class="spinner hidden"></div>
+    
+    <label for="prompt" class="sr-only">Enter your topic</label>
     <textarea id="prompt" placeholder="Enter your topic..."></textarea>
     
-    <!-- Output box for displaying generated hashtags -->
+    <label for="output" class="sr-only">Generated Hashtags</label>
     <textarea id="output" placeholder="Generated hashtags will appear here..." readonly></textarea>
     
-    <!-- Buttons for generating, copying, and regenerating hashtags -->
-    <button id="generate">Generate Hashtags</button>
-    <button id="copy">Copy</button>
-    <button id="regenerate">Regenerate</button>
+    <button id="generate">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+        Generate Hashtags
+    </button>
+    
+    <div class="button-group">
+        <button id="copy">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            Copy
+        </button>
+        <button id="regenerate">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v6h6"/><path d="M21 12A9 9 0 0 0 6 5.3L3 8"/><path d="M21 22v-6h-6"/><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"/></svg>
+            Regenerate
+        </button>
+    </div>
+
   </div>
 
   <script>
-    document.getElementById('generate').addEventListener('click', async () => {
-      const topic = document.getElementById('prompt').value.trim();
+    // Get references to elements once
+    const generateBtn = document.getElementById('generate');
+    const copyBtn = document.getElementById('copy');
+    const regenerateBtn = document.getElementById('regenerate');
+    const promptEl = document.getElementById('prompt');
+    const outputEl = document.getElementById('output');
+    const spinner = document.getElementById('spinner');
+
+    // Initial state: disable buttons that need output
+    copyBtn.disabled = true;
+    regenerateBtn.disabled = true;
+
+    generateBtn.addEventListener('click', async () => {
+      const topic = promptEl.value.trim();
 
       if (!topic) {
         alert("Please enter a topic to generate hashtags.");
         return;
       }
 
-      // Add the user input to the output box as well
-      document.getElementById('output').value = "Generating hashtags...";
+      // --- ENHANCEMENT: Show spinner and disable button ---
+      spinner.classList.remove('hidden');
+      generateBtn.disabled = true;
+      outputEl.value = "Generating hashtags...";
 
       try {
         const response = await fetch('/generate_hashtags', {
@@ -100,29 +231,45 @@
 
         const data = await response.json();
         if (data.hashtags) {
-          document.getElementById('output').value = data.hashtags.join(', ');
+          outputEl.value = data.hashtags.join(' '); // Use space for better readability
+          // --- ENHANCEMENT: Enable buttons on success ---
+          copyBtn.disabled = false;
+          regenerateBtn.disabled = false;
         } else if (data.error) {
-          document.getElementById('output').value = 'Error: ' + data.error;
+          outputEl.value = 'Error: ' + data.error;
         }
       } catch (error) {
-        document.getElementById('output').value = 'Error generating hashtags.';
+        outputEl.value = 'Error generating hashtags.';
+      } finally {
+        // --- ENHANCEMENT: Hide spinner and re-enable button ---
+        spinner.classList.add('hidden');
+        generateBtn.disabled = false;
       }
     });
 
-    // Copy button functionality
-    document.getElementById('copy').addEventListener('click', () => {
-      const output = document.getElementById('output').value;
-      navigator.clipboard.writeText(output).then(() => {
-        alert('Hashtags copied to clipboard!');
+    copyBtn.addEventListener('click', () => {
+      const outputText = outputEl.value;
+      if (!outputText || outputText.startsWith('Error')) return;
+
+      navigator.clipboard.writeText(outputText).then(() => {
+        // --- ENHANCEMENT: Better copy feedback ---
+        const originalText = copyBtn.innerHTML;
+        copyBtn.innerHTML = 'Copied!';
+        setTimeout(() => {
+          copyBtn.innerHTML = originalText;
+        }, 2000);
       }).catch(() => {
         alert('Failed to copy hashtags.');
       });
     });
 
-    // Regenerate button functionality (clears the input and output)
-    document.getElementById('regenerate').addEventListener('click', () => {
-      document.getElementById('prompt').value = '';
-      document.getElementById('output').value = '';
+    regenerateBtn.addEventListener('click', () => {
+      promptEl.value = '';
+      outputEl.value = '';
+      // --- ENHANCEMENT: Reset button states ---
+      copyBtn.disabled = true;
+      regenerateBtn.disabled = true;
+      promptEl.focus(); // Set focus back to the input
     });
   </script>
 </body>
